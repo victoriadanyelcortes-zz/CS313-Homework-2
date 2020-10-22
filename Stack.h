@@ -1,0 +1,4 @@
+#ifndef STACK_QUEUE_STACK_H
+#define STACK_QUEUE_STACK_H
+
+#endif //STACK_QUEUE_STACK_H
