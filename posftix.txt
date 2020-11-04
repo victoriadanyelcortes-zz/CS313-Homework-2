@@ -1,0 +1,204 @@
+//***********************************************************
+// Author: D.S. Malik
+//
+// Program: Postfix Calculator  
+// This program evaluates postfix expressions.
+//***********************************************************
+  
+#include <iostream>  
+#include <iomanip>
+#include <fstream>
+#include "mystack.h"
+ 
+using namespace std; 
+
+// evaluateExpression function declaration
+void evaluateExpression(ifstream& inpF, ofstream& outF, 
+                        stackType<double>& stack,
+                        char& ch, bool& isExpOk);
+// evaluateOpr function declaration
+void evaluateOpr(ofstream& out, stackType<double>& stack,
+                 char& ch, bool& isExpOk);
+// discardExp function declaration
+void discardExp(ifstream& in, ofstream& out, char& ch);
+// printResult function declaration
+void printResult(ofstream& outF, stackType<double>& stack,
+                 bool isExpOk);
+
+int main()
+{
+    bool expressionOk;
+    char ch;
+    stackType<double> stack(100);  // instantiate a stack with type of double
+    ifstream infile;               // create ifstream to read from input files
+    ofstream outfile;              // create ofstream to write to output files
+
+    // using ifstream to open a file with the input data
+    infile.open("RpnData.txt");
+
+    // check to make sure file is good
+    if (!infile)
+    {
+        cout << "Cannot open the input file. "
+             << "Program terminates!" << endl;  // print error message if the file cannot be opened
+        return 1;   // return 1 to terminate program with error
+    }
+
+    // using ofstream to open the file that will contain the output
+    outfile.open("RpnOutput.txt");
+
+    outfile << fixed << showpoint;
+    outfile << setprecision(2); 
+
+    // a way to read in the file until there are no more chars
+    infile >> ch;
+    while (infile)
+    {
+        stack.initializeStack();   // initialize the stack by setting top of stack to 0
+        expressionOk = true;      //  set flag to true
+        outfile << ch;           //   write to output file
+
+        evaluateExpression(infile, outfile, stack, ch, 
+                           expressionOk);  // function call to evaluate the expression
+        printResult(outfile, stack, expressionOk);  // print the result
+        infile >> ch; //begin processing the next expression
+    } //end while 
+
+    infile.close();     // close input file
+    outfile.close();    // close output file
+
+    return 0;
+
+} //end main
+
+// funtion to evaluate the expression
+void evaluateExpression(ifstream& inpF, ofstream& outF, stackType<double>& stack,char& ch, bool& isExpOk)
+{
+    double num;
+
+    // loop to go thru expression until = character is found
+    while (ch != '=')
+    {
+        switch (ch)
+        {
+        case '#': 
+            inpF >> num;
+            outF << num << " ";
+            if (!stack.isFullStack())  //if the stack is not full and the char is a number, push to the stack
+                stack.push(num);
+            else
+            {
+                cout << "Stack overflow. "
+                     << "Program terminates!" << endl; // if the stack is full, terminate the program
+                exit(0);  //terminate the program
+            }
+
+            break;
+        default: 
+            evaluateOpr(outF, stack, ch, isExpOk); // if the char is not a number, then evaluate the operator
+        }//end switch
+
+        if (isExpOk) //if no error
+        {
+            inpF >> ch;  // read in char
+            outF << ch;  // output char
+
+            if (ch != '#')  //if it is not a number, output a blank space
+                outF << " ";
+        }
+        else
+            discardExp(inpF, outF, ch); // if there is an error, discard the expression
+    } //end while (!= '=')
+} //end evaluateExpression
+
+
+void evaluateOpr(ofstream& out, stackType<double>& stack,
+              char& ch, bool& isExpOk)
+{
+    double op1, op2;
+
+    if (stack.isEmptyStack())  // if the stack is empty, set flag to false and write error to output file
+    {
+        out << " (Not enough operands)";
+        isExpOk = false;
+    }
+    else
+    {
+        op2 = stack.top();  // set op2 to top of stack
+        stack.pop();        // pop the top to remove op2
+
+        if (stack.isEmptyStack())  // check for empty stack
+        {
+            out << " (Not enough operands)";
+            isExpOk = false;
+        }
+        else
+        {
+            op1 = stack.top();  // now set op1 to the top and pop
+            stack.pop();
+
+            switch (ch)
+            {
+            case '+':   // case for addition, add op1 and op2
+                stack.push(op1 + op2); // push the result of the op1 and op2 added
+                break;
+            case '-': 
+                stack.push(op1 - op2);
+                break;
+            case '*': 
+                stack.push(op1 * op2);
+                break;
+            case '/': 
+                if (op2 != 0)
+                    stack.push(op1 / op2);
+                else
+                {
+                    out << " (Division by 0)";
+                    isExpOk = false;
+                }
+                break;
+            default:  
+                out << " (Illegal operator)";
+                isExpOk = false;
+            }//end switch
+        } //end else
+    } //end else
+} //end evaluateOpr
+
+
+void discardExp(ifstream& in, ofstream& out, char& ch)
+{
+    while (ch != '=')
+    {
+        in.get(ch);
+        out << ch;
+    }
+} //end discardExp
+
+void printResult(ofstream& outF, stackType<double>& stack,
+                 bool isExpOk)
+{
+    double result;
+
+    if (isExpOk) //if no error, print the result
+    {
+        if (!stack.isEmptyStack()) // check for empty stack
+        {
+            result = stack.top(); // set result to top element
+            stack.pop();          // pop element off stack
+
+            if (stack.isEmptyStack()) // if stack is empty write result to file
+                outF << result << endl;
+            else   // if the stack isn't empty write error message to output file
+                outF << " (Error: Too many operands)" << endl;
+        } //end if
+        else
+            outF << " (Error in the expression)" << endl; // if there is an error and the stack is empty, write error message
+    }
+    else
+        outF << " (Error in the expression)" << endl; // if there is an error, print error messages
+
+    outF << "_________________________________"  // write line after result
+         << endl << endl;
+} //end printResult
+
