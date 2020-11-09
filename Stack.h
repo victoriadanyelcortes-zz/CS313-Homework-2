@@ -4,26 +4,37 @@
 #include <random>
 
 template <typename T> class Stack {
+    // set member variables
     int max_size;
     int stack_top;
     T* elements;
 
 public:
    explicit Stack(int size) {
+       // set max size to the given size, and create
+       // array of that size, if the given size
+       // is less than 0, use the default of 100
        if(size > 0) {
            max_size = size;
+           stack_top = 0;
+           elements = new T[max_size];
+       } else {
+           max_size = 100;
            stack_top = 0;
            elements = new T[max_size];
        }
     }
 
     Stack() {
+       // no argument constructor, sets
+       // everything to the default size of 100
        max_size = 100;
        stack_top = 0;
        elements = new T[max_size];
    }
 
     ~Stack() {
+       // destructor
         delete [] elements;
     }
 
@@ -32,13 +43,16 @@ public:
     }
 
     T top() {
+       // return the value at the top of the stack
         return elements[stack_top - 1];
    }
 
     void push(T item) {
        if(check_full()) {
+           // if the stack is full, nothing can be pushed
            std::cout << "Stack is full, cannot push any more elements" << std::endl;
        } else {
+           // add the new value to the top of the stack
            elements[stack_top] = item;
            stack_top++;
        }
@@ -46,6 +60,7 @@ public:
 
     void pop() {
         if(!check_empty()){
+            // decrease the stack top
             stack_top--;
         }
         else {
@@ -55,10 +70,12 @@ public:
     }
 
     bool check_empty() {
+       // return true if empty
         return(stack_top == 0);
     }
 
     bool check_full() {
+       // return true if full
         return (stack_top == max_size);
     }
 
@@ -74,7 +91,7 @@ public:
        using pointer = T*;
        using reference = T&;
 
-       //explicit Itr() :ptr(nullptr) {}
+       explicit Itr() :ptr(nullptr) {}
 
        explicit Itr(T* p) :ptr(p) {}
 
