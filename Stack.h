@@ -14,12 +14,14 @@ public:
            max_size = size;
            stack_top = 0;
            elements = new T[max_size];
-       } else {
-           max_size = 100;
-           stack_top = 0;
-           elements = new T[max_size];
        }
     }
+
+    Stack() {
+       max_size = 100;
+       stack_top = 0;
+       elements = new T[max_size];
+   }
 
     ~Stack() {
         delete [] elements;
@@ -30,10 +32,10 @@ public:
     }
 
     T top() {
-        return stack_top;
+        return elements[stack_top - 1];
    }
 
-    void push(const T& item) {
+    void push(T item) {
        if(check_full()) {
            std::cout << "Stack is full, cannot push any more elements" << std::endl;
        } else {
@@ -44,7 +46,7 @@ public:
 
     void pop() {
         if(!check_empty()){
-            max_size--;
+            stack_top--;
         }
         else {
             std::cout << "Stack is empty, cannot remove from empty stack." << std::endl;
@@ -110,13 +112,10 @@ public:
    }
 
    void list_all_elements() {
-       Itr it(elements);
-       for(it = elements.begin(); it!= elements.end(); ++it) {
-          std::cout << *it << std::endl;
+       // iterate thru the list and print every value
+      for( int i = 0; i < max_size; ++i) {
+          std::cout << elements[i] << std::endl;
       }
-//      for( int i = 0; i < max_size; ++i) {
-//          std::cout << elements[i] << std::endl;
-//      }
    }
 
    void change_element_value() {
@@ -126,17 +125,23 @@ public:
        std::uniform_int_distribution<int> int_dist(0, stack_top);
        int pos_to_change = int_dist(bl);
 
+       T changed_val;
+       T old_val;
        // iterating thru the list to come up with a way to change the value
        for(int i = 0; i < pos_to_change; ++i) {
-           if(pos_to_change < stack_top/2) {
+           // add all values up to the changed value to create a unique value
+           changed_val += elements[i];
 
-           } else {
-
+           // set position in stack to changed value
+           if(i == pos_to_change-1) {
+               old_val = elements[i+1];
+               elements[i+1] = changed_val;
            }
        }
 
-       // set position to that value
-       elements[pos_to_change];
+       // print changed postion and new value
+       std::cout << "Changed postition: " << pos_to_change << std::endl;
+       std::cout << "Previous Value: " << old_val << " Changed value: " << changed_val << std::endl;
    }
 
 };

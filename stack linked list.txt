@@ -14,8 +14,8 @@ using namespace std;
 template <class Type>
 struct nodeType
 {
-    Type info;
-    nodeType<Type> *link;
+    Type info;  // create into variable of generic type
+    nodeType<Type> *link;  // create pointer to link(next val)
 };
 
 template <class Type>
@@ -85,18 +85,21 @@ private:
 template <class Type> 
 linkedStackType<Type>::linkedStackType()
 {
+    // set top of stack to null pointer
     stackTop = nullptr;
 }
 
 template <class Type>
 bool linkedStackType<Type>::isEmptyStack() const
 {
+    // if the stack top is nullptr, then return true
     return(stackTop == nullptr);
 } //end isEmptyStack
 
 template <class Type>
 bool linkedStackType<Type>:: isFullStack() const
 {
+    // return false
     return false;
 } //end isFullStack
 
@@ -144,11 +147,11 @@ void linkedStackType<Type>::pop()
 {
     nodeType<Type> *temp;   //pointer to deallocate memory
 
-    if (stackTop != nullptr)
+    if (stackTop != nullptr) //if the top is not a null pointer
     {
         temp = stackTop;  //set temp to point to the top node
 
-        stackTop = stackTop->link;  //advance stackTop to the 
+        stackTop = stackTop->link;  //set stackTop to the
                                     //next node
         delete temp;    //delete the top node
     }
@@ -160,12 +163,12 @@ template <class Type>
 void linkedStackType<Type>::copyStack
                      (const linkedStackType<Type>& otherStack)
 {
-    nodeType<Type> *newNode, *current, *last;
+    nodeType<Type> *newNode, *current, *last;  //pointer to allocate memory
 
     if (stackTop != nullptr) //if stack is nonempty, make it empty
         initializeStack();
 
-    if (otherStack.stackTop == nullptr)
+    if (otherStack.stackTop == nullptr)  // if the other stack is empty, make stackTop empty
         stackTop = nullptr;
     else
     {
@@ -185,13 +188,13 @@ void linkedStackType<Type>::copyStack
             //copy the remaining stack
         while (current != nullptr)
         {
-            newNode = new nodeType<Type>;
+            newNode = new nodeType<Type>;  // create new node
 
-            newNode->info = current->info;
-            newNode->link = nullptr;
-            last->link = newNode;
-            last = newNode;
-            current = current->link;
+            newNode->info = current->info; // set new node's info to current info
+            newNode->link = nullptr;  // set new node link to null pointer
+            last->link = newNode;   // set last's link(next) to the new node
+            last = newNode;         // set last to the new node
+            current = current->link; // advance current to the next
         }//end while
     }//end else
 } //end copyStack
@@ -201,15 +204,15 @@ template <class Type>
 linkedStackType<Type>::linkedStackType(
                       const linkedStackType<Type>& otherStack)
 {
-    stackTop = nullptr;
-    copyStack(otherStack);
+    stackTop = nullptr;  // set stackTop to null pointer
+    copyStack(otherStack); // copy the stack using existing copy function
 }//end copy constructor
 
     //destructor
 template <class Type> 
 linkedStackType<Type>::~linkedStackType()
 {
-    initializeStack();
+    initializeStack();  // initialize the stack --> make it empty
 }//end destructor
 
     //overloading the assignment operator
@@ -218,9 +221,9 @@ const linkedStackType<Type>& linkedStackType<Type>::operator=
     			  (const linkedStackType<Type>& otherStack)
 { 
     if (this != &otherStack) //avoid self-copy
-        copyStack(otherStack);
+        copyStack(otherStack); // if it's not a self-copy, copy otherStack using existing copy function
 
-    return *this; 
+    return *this; // return the stack otherStack was copied into
 }//end operator=
 
 #endif
